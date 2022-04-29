@@ -2,12 +2,23 @@ const LoginRouter = require("./login-router");
 const MissingParamError = require("./helpers/missing-param-error");
 
 const makeSut = () => {
-  return new LoginRouter();
+  class AuthCaseSpy {
+    auth(email, password) {
+      this.email = email;
+      this.password  = password;
+    }
+  }
+  const authCase = new AuthCaseSpy();
+  const sut = new LoginRouter(authCase);
+  return {
+    sut,
+    authCase,
+  };
 };
 
 describe("Login Router", () => {
   it("Should return 400 if no email is provided", () => {
-    const sut = makeSut();
+    const { sut } = makeSut();
     const httpRequest = {
       body: {
         password: "123",
@@ -19,7 +30,7 @@ describe("Login Router", () => {
   });
 
   it("Should return 400 if no password is provided", () => {
-    const sut = makeSut();
+    const { sut } = makeSut();
     const httpRequest = {
       body: {
         email: "anyEmail",
@@ -31,14 +42,27 @@ describe("Login Router", () => {
   });
 
   it("Should return 500 if no http request is provided", () => {
-    const sut = makeSut();
+    const { sut } = makeSut();
     const response = sut.route();
     expect(response.statusCode).toBe(500);
   });
 
   it("Should return 500 if http request has no body", () => {
-    const sut = makeSut();
+    const { sut } = makeSut();
     const response = sut.route({});
     expect(response.statusCode).toBe(500);
+  });
+
+  it("Should call AuthUseCase with correct params", () => {
+    const { sut, authCase } = makeSut();
+    const httpRequest = {
+      body: {
+        email: "email@email.com",
+        password: "123",
+      },
+    };
+    const response = sut.route(httpRequest);
+    expect(authCase.email).toBe(httpRequest.body.email);
+    expect(authCase.password).toBe(httpRequest.body.password);
   });
 });
