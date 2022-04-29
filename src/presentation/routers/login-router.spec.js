@@ -61,7 +61,7 @@ describe("Login Router", () => {
         password: "123",
       },
     };
-    const response = sut.route(httpRequest);
+    sut.route(httpRequest);
     expect(authCase.email).toBe(httpRequest.body.email);
     expect(authCase.password).toBe(httpRequest.body.password);
   });
