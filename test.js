@@ -1,3 +1,3 @@
 function test() {
-  return {a:121};;
+  return {a:1212};;
 }
