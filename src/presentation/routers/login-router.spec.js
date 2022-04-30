@@ -7,9 +7,11 @@ const makeSut = () => {
     auth(email, password) {
       this.email = email;
       this.password = password;
+      return this.accessToken;
     }
   }
   const authCase = new AuthCaseSpy();
+  authCase.accessToken = "random_token";
   const sut = new LoginRouter(authCase);
   return {
     sut,
@@ -68,7 +70,8 @@ describe("Login Router", () => {
   });
 
   it("Should return 401 if invalid email or password", () => {
-    const { sut } = makeSut();
+    const { sut, authCase } = makeSut();
+    authCase.accessToken = null;
     const httpRequest = {
       body: {
         email: "invalid@email.com",
@@ -102,5 +105,17 @@ describe("Login Router", () => {
     };
     const response = sutWithNoAuthUseCase.route(httpRequest);
     expect(response.statusCode).toBe(500);
+  });
+
+  it("Should return 200 when valid credentials is provided", () => {
+    const { sut } = makeSut();
+    const httpRequest = {
+      body: {
+        email: "valid@email.com",
+        password: "valid_password",
+      },
+    };
+    const response = sut.route(httpRequest);
+    expect(response.statusCode).toBe(200);
   });
 });
