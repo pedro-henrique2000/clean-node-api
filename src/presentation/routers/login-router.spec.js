@@ -108,7 +108,7 @@ describe("Login Router", () => {
   });
 
   it("Should return 200 when valid credentials is provided", () => {
-    const { sut } = makeSut();
+    const { sut, authCase } = makeSut();
     const httpRequest = {
       body: {
         email: "valid@email.com",
@@ -117,5 +117,6 @@ describe("Login Router", () => {
     };
     const response = sut.route(httpRequest);
     expect(response.statusCode).toBe(200);
+    expect(response.body.accessToken).toEqual(authCase.accessToken);
   });
 });
