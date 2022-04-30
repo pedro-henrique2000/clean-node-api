@@ -1,6 +1,7 @@
 const LoginRouter = require("./login-router");
 const MissingParamError = require("./helpers/missing-param-error");
 const UnauthorizedError = require("./helpers/unauthorized-error");
+const ServerError = require("./helpers/server-error");
 
 const makeSut = () => {
   class AuthCaseSpy {
@@ -48,12 +49,14 @@ describe("Login Router", () => {
     const { sut } = makeSut();
     const response = sut.route();
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual(new ServerError());
   });
 
   it("Should return 500 if http request has no body", () => {
     const { sut } = makeSut();
     const response = sut.route({});
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual(new ServerError());
   });
 
   it("Should call AuthUseCase with correct params", () => {
@@ -93,6 +96,7 @@ describe("Login Router", () => {
     };
     const response = sutWithNoAuthUseCase.route(httpRequest);
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual(new ServerError());
   });
 
   it("Should return 500 if no authcase has no auth method", () => {
@@ -105,6 +109,7 @@ describe("Login Router", () => {
     };
     const response = sutWithNoAuthUseCase.route(httpRequest);
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual(new ServerError());
   });
 
   it("Should return 200 when valid credentials is provided", () => {
@@ -118,5 +123,21 @@ describe("Login Router", () => {
     const response = sut.route(httpRequest);
     expect(response.statusCode).toBe(200);
     expect(response.body.accessToken).toEqual(authCase.accessToken);
+  });
+
+  it("Should return 500 when an exception is throwed by AuthUseCase", () => {
+    const { sut, authCase } = makeSut();
+    authCase.auth = () => {
+      throw new Error();
+    };
+    const httpRequest = {
+      body: {
+        email: "valid@email.com",
+        password: "valid_password",
+      },
+    };
+    const response = sut.route(httpRequest);
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual(new ServerError());
   });
 });
