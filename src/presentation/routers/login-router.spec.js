@@ -6,12 +6,26 @@ const InvalidParamError = require("./helpers/invalid-param-error");
 
 const makeSut = () => {
   const authCase = makeAuthUseCase();
+  const emailValidatorSpy = makeEmailValidator();
   authCase.accessToken = "random_token";
-  const sut = new LoginRouter(authCase);
+  const sut = new LoginRouter(authCase, emailValidatorSpy);
   return {
     sut,
     authCase,
+    emailValidatorSpy,
   };
+};
+
+const makeEmailValidator = () => {
+  class EmailValidatorSpy {
+    isValid(email) {
+      return this.emailIsValid;
+    }
+  }
+
+  const emailValidatorSpy = new EmailValidatorSpy();
+  emailValidatorSpy.emailIsValid = true;
+  return emailValidatorSpy;
 };
 
 const makeAuthUseCase = () => {
@@ -153,5 +167,19 @@ describe("Login Router", () => {
     const response = await sut.route(httpRequest);
     expect(response.statusCode).toBe(500);
     expect(response.body).toEqual(new ServerError());
+  });
+
+  it("Should return 400 if invalid email is provided", async () => {
+    const { sut, emailValidatorSpy } = makeSut();
+    emailValidatorSpy.emailIsValid = false;
+    const httpRequest = {
+      body: {
+        email: "invalid_email@mail.com",
+        password: "anyPassword",
+      },
+    };
+    const response = await sut.route(httpRequest);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual(new InvalidParamError("email"));
   });
 });
