@@ -79,4 +79,28 @@ describe("Login Router", () => {
     expect(response.statusCode).toBe(401);
     expect(response.body).toEqual(new UnauthorizedError());
   });
+
+  it("Should return 500 if no authcase is provided", () => {
+    const sutWithNoAuthUseCase = new LoginRouter(null);
+    const httpRequest = {
+      body: {
+        email: "invalid@email.com",
+        password: "invalid_password",
+      },
+    };
+    const response = sutWithNoAuthUseCase.route(httpRequest);
+    expect(response.statusCode).toBe(500);
+  });
+
+  it("Should return 500 if no authcase has no auth method", () => {
+    const sutWithNoAuthUseCase = new LoginRouter({});
+    const httpRequest = {
+      body: {
+        email: "invalid@email.com",
+        password: "invalid_password",
+      },
+    };
+    const response = sutWithNoAuthUseCase.route(httpRequest);
+    expect(response.statusCode).toBe(500);
+  });
 });
