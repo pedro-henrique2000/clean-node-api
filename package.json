@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --silent --verbose"
+    "test": "jest --watchAll --silent --verbose",
+    "test:ci" : "jest --coverage"
   },
   "lint-staged": {
     "*.js": [
@@ -13,7 +14,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx lint-staged"
+      "pre-commit": "npx lint-staged",
+      "pre-push": "npm run test:ci"
     }
   },
   "author": "",
