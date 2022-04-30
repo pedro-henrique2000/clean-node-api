@@ -87,7 +87,7 @@ describe("Login Router", () => {
     expect(authCase.password).toBe(httpRequest.body.password);
   });
 
-  it("Should return 401 if invalid email or password", async () => {
+  it("Should return 401 if invalid credentials", async () => {
     const { sut, authCase } = makeSut();
     authCase.accessToken = null;
     const httpRequest = {
