@@ -53,7 +53,7 @@ describe("AuthUseCase", () => {
   });
 
   it("Should Return Null If an invalid password is provided", async () => {
-    const { sut, loadUserByEmailRepositorySpy } = makeSut();
+    const { sut } = makeSut();
     const promise = await sut.auth("anyEmail@email.com", "invalidPassword");
     expect(promise).toBeNull();
   });
