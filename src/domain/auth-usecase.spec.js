@@ -1,45 +1,49 @@
-const {MissingParamError} = require('../utils/errors')
+const { MissingParamError } = require("../utils/errors");
 
 class AuthUseCase {
   constructor(loadUserByEmailRepository) {
-    this.loadUserByEmailRepository = loadUserByEmailRepository
+    this.loadUserByEmailRepository = loadUserByEmailRepository;
   }
   async auth(email, password) {
     if (!email) {
-      throw new MissingParamError('email');
+      throw new MissingParamError("email");
     }
 
     if (!password) {
-      throw new MissingParamError('password');
+      throw new MissingParamError("password");
     }
 
-    await this.loadUserByEmailRepository.load(email)
-
+    await this.loadUserByEmailRepository.load(email);
   }
 }
 
+const makeSut = () => {
+  class LoadUserByEmailRepositorySpy {
+    async load(email) {
+      this.email = email;
+    }
+  }
+  const loadUserByEmailRepositorySpy = new LoadUserByEmailRepositorySpy();
+  const sut = new AuthUseCase(loadUserByEmailRepositorySpy);
+  return { sut, loadUserByEmailRepositorySpy };
+};
+
 describe("AuthUseCase", () => {
   it("Should Throw Error If null Email Is Provided", () => {
-    const sut = new AuthUseCase();
+    const { sut } = makeSut();
     const promise = sut.auth();
-    expect(promise).rejects.toThrow(new MissingParamError('email'));
+    expect(promise).rejects.toThrow(new MissingParamError("email"));
   });
 
   it("Should Throw Error If null Password Is Provided", () => {
-    const sut = new AuthUseCase();
-    const promise = sut.auth('anyMail');
-    expect(promise).rejects.toThrow(new MissingParamError('password'));
+    const { sut } = makeSut();
+    const promise = sut.auth("anyMail");
+    expect(promise).rejects.toThrow(new MissingParamError("password"));
   });
 
   it("Should Call LoadUserByEmailRepository with correct email", async () => {
-    class LoadUserByEmailRepositorySpy {
-      async load(email) {
-        this.email = email;
-      }
-    }
-    const loadUserByEmail = new LoadUserByEmailRepositorySpy();
-    const sut = new AuthUseCase(loadUserByEmail);
-    await sut.auth('anyMail', 'anyPassword');
-    expect(loadUserByEmail.email).toBe('anyMail')
+    const { sut, loadUserByEmailRepositorySpy } = makeSut();
+    await sut.auth("anyMail", "anyPassword");
+    expect(loadUserByEmailRepositorySpy.email).toBe("anyMail");
   });
 });
