@@ -1,16 +1,22 @@
 const { MissingParamError } = require("../utils/errors");
 const AuthUseCase = require("./auth-usecase");
 
-const makeSut = () => {
+const makeEncrypter = () => {
   class EncrypterSpy {
     async compare(password, hashedPassword) {
       this.password = password;
       this.hashedPassword = hashedPassword;
+      return this.isValid;
     }
   }
 
   const encrypterSpy = new EncrypterSpy();
+  encrypterSpy.isValid = true;
 
+  return encrypterSpy;
+};
+
+const makeLoadUserByEmailRepositorySpy = () => {
   class LoadUserByEmailRepositorySpy {
     async load(email) {
       this.email = email;
@@ -19,8 +25,16 @@ const makeSut = () => {
   }
   const loadUserByEmailRepositorySpy = new LoadUserByEmailRepositorySpy();
   loadUserByEmailRepositorySpy.user = {
-    password: 'hashed_password'
-  }
+    password: "hashed_password",
+  };
+
+  return loadUserByEmailRepositorySpy;
+};
+
+const makeSut = () => {
+  const encrypterSpy = makeEncrypter();
+  const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepositorySpy();
+
   const sut = new AuthUseCase(loadUserByEmailRepositorySpy, encrypterSpy);
   return { sut, loadUserByEmailRepositorySpy, encrypterSpy };
 };
@@ -64,7 +78,8 @@ describe("AuthUseCase", () => {
   });
 
   it("Should Return Null If an invalid password is provided", async () => {
-    const { sut } = makeSut();
+    const { sut, encrypterSpy } = makeSut();
+    encrypterSpy.isValid = false;
     const promise = await sut.auth("anyEmail@email.com", "invalidPassword");
     expect(promise).toBeNull();
   });
@@ -73,6 +88,8 @@ describe("AuthUseCase", () => {
     const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut();
     await sut.auth("anyEmail@email.com", "anyPassword");
     expect(encrypterSpy.password).toBe("anyPassword");
-    expect(encrypterSpy.hashedPassword).toBe(loadUserByEmailRepositorySpy.user.password);
+    expect(encrypterSpy.hashedPassword).toBe(
+      loadUserByEmailRepositorySpy.user.password
+    );
   });
 });
