@@ -10,7 +10,7 @@ const makeTokenGenerator = () => {
   }
 
   const tokenGeneratorSpy = new TokenGenerator();
-  tokenGeneratorSpy.accessToken = 'any_token'
+  tokenGeneratorSpy.accessToken = "any_token";
   return tokenGeneratorSpy;
 };
 
@@ -49,11 +49,11 @@ const makeSut = () => {
   const encrypterSpy = makeEncrypter();
   const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepositorySpy();
   const tokenGeneratorSpy = makeTokenGenerator();
-  const sut = new AuthUseCase(
-    loadUserByEmailRepositorySpy,
-    encrypterSpy,
-    tokenGeneratorSpy
-  );
+  const sut = new AuthUseCase({
+    loadUserByEmailRepository: loadUserByEmailRepositorySpy,
+    encrypter: encrypterSpy,
+    tokenGenerator: tokenGeneratorSpy,
+  });
   return { sut, loadUserByEmailRepositorySpy, encrypterSpy, tokenGeneratorSpy };
 };
 
@@ -77,13 +77,13 @@ describe("AuthUseCase", () => {
   });
 
   it("Should Throw if No LoadUserByEmailRepository is provided", async () => {
-    const sut = new AuthUseCase();
+    const sut = new AuthUseCase({});
     const promise = sut.auth("anyMail", "anyPassword");
     expect(promise).rejects.toThrow();
   });
 
   it("Should Throw if No LoadUserByEmailRepository Load Method is provided", async () => {
-    const sut = new AuthUseCase({});
+    const sut = new AuthUseCase({loadUserByEmailRepository: {}});
     const promise = sut.auth("anyMail", "anyPassword");
     expect(promise).rejects.toThrow();
   });
