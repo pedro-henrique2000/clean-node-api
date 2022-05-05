@@ -122,6 +122,7 @@ describe("AuthUseCase", () => {
     for (const sut of suts) {
       const promise = sut.auth("anyMail", "anyPassword");
       expect(promise).rejects.toThrow();
+      
     }
   });
 });
