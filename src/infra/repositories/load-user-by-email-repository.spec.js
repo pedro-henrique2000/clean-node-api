@@ -47,7 +47,7 @@ describe(`LoadUserByEmailRepository`, () => {
     expect(user.password).toEqual(hashedPassword);
   });
 
-  test(`should throw if no userModel is provided`, async () => {
+  test(`should throw if no email is provided`, async () => {
     const {sut} = makeSut();
     const promise = sut.load();
     expect(promise).rejects.toThrow(new MissingParamError('email'));
