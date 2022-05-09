@@ -54,6 +54,7 @@ describe("Update User Token Repository", () => {
     const updatedUser = await userModel.findOne({
       _id: createdUser.insertedId,
     });
+    console.log(updatedUser)
     expect(updatedUser.accessToken).toBe("valid_token");
   });
 
