@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main/index.js",
   "scripts": {
-    "start" : "node src/main",
+    "start": "node src/main",
     "test": "jest --watchAll --silent --verbose",
     "test:unit": "npm test -- -c jest-unit-config.js",
     "test:integration": "npm test -- -c jest-integration-config.js",
@@ -29,7 +29,8 @@
     "husky": "^7.0.4",
     "jest": "^28.0.3",
     "lint-staged": "^12.4.1",
-    "standard": "^17.0.0"
+    "standard": "^17.0.0",
+    "supertest": "^6.2.3"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
