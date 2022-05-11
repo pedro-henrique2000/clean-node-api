@@ -7,7 +7,7 @@ const makeSut = () => {
   const authCase = makeAuthUseCase();
   const emailValidatorSpy = makeEmailValidator();
   authCase.accessToken = "random_token";
-  const sut = new LoginRouter(authCase, emailValidatorSpy);
+  const sut = new LoginRouter({authUseCase: authCase, emailValidator: emailValidatorSpy});
   return {
     sut,
     authCase,
@@ -124,19 +124,6 @@ describe("Login Router", () => {
     const response = await sut.route(httpRequest);
     expect(response.statusCode).toBe(401);
     expect(response.body).toEqual(new UnauthorizedError());
-  });
-
-  it("Should return 500 if no authcase is provided", async () => {
-    const sutWithNoAuthUseCase = new LoginRouter(null);
-    const httpRequest = {
-      body: {
-        email: "invalid@email.com",
-        password: "invalid_password",
-      },
-    };
-    const response = await sutWithNoAuthUseCase.route(httpRequest);
-    expect(response.statusCode).toBe(500);
-    expect(response.body).toEqual(new ServerError());
   });
 
   it("Should return 500 if no authcase has no auth method", async () => {
