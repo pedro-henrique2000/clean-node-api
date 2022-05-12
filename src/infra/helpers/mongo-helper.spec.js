@@ -11,7 +11,7 @@ describe("MongoHelper", () => {
     await MongoHelper.disconnect();
     expect(MongoHelper.db).toBeNull();
     expect(MongoHelper.client).toBeNull();
-    await MongoHelper.getDb();
+    await MongoHelper.getCollection('users');
     expect(MongoHelper.db).toBeTruthy();
     expect(MongoHelper.client).toBeTruthy();
   });

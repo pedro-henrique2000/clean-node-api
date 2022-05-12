@@ -1,7 +1,7 @@
 const { MissingParamError } = require("../../utils/errors");
 const MongoHelper = require("../helpers/mongo-helper");
 const UpdateUserTokenRepository = require("./update-user-token-repository");
-let db;
+let userModel;
 
 const makeSut = () => {
   const sut = new UpdateUserTokenRepository();
@@ -11,11 +11,11 @@ const makeSut = () => {
 describe("Update User Token Repository", () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL, null);
-    db = await MongoHelper.getDb();
+    userModel = await MongoHelper.getCollection('users');
   });
 
   beforeEach(async () => {
-    await db.collection(`users`).deleteMany();
+    await userModel.deleteMany();
   });
 
   afterAll(async () => {
@@ -23,10 +23,10 @@ describe("Update User Token Repository", () => {
   });
 
   it("Should user token with correct accessToken", async () => {
-    const { sut, userModel } = makeSut();
+    const { sut } = makeSut();
     const hashedPassword = "hashed_password";
     const email = "valid_mail@mail.com";
-    const createdUser = await db.collection(`users`).insertOne({
+    const createdUser = await userModel.insertOne({
       email,
       name: "any_name",
       age: 50,
@@ -34,7 +34,7 @@ describe("Update User Token Repository", () => {
       password: hashedPassword,
     });
     await sut.update(createdUser.insertedId, "valid_token");
-    const updatedUser = await db.collection('users').findOne({
+    const updatedUser = await userModel.findOne({
       _id: createdUser.insertedId,
     });
     expect(updatedUser.accessToken).toBe("valid_token");
@@ -56,7 +56,7 @@ describe("Update User Token Repository", () => {
     const sut = new UpdateUserTokenRepository();
     const hashedPassword = "hashed_password";
     const email = "valid_mail@mail.com";
-    const createdUser = await db.collection(`users`).insertOne({
+    const createdUser = await userModel.insertOne({
       email,
       name: "any_name",
       age: 50,
