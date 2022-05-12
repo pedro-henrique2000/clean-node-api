@@ -4,9 +4,8 @@ const UpdateUserTokenRepository = require("./update-user-token-repository");
 let db;
 
 const makeSut = () => {
-  const userModel = db.collection("users");
-  const sut = new UpdateUserTokenRepository(userModel);
-  return { sut, userModel };
+  const sut = new UpdateUserTokenRepository();
+  return { sut };
 };
 
 describe("Update User Token Repository", () => {
@@ -27,7 +26,7 @@ describe("Update User Token Repository", () => {
     const { sut, userModel } = makeSut();
     const hashedPassword = "hashed_password";
     const email = "valid_mail@mail.com";
-    const createdUser = await userModel.insertOne({
+    const createdUser = await db.collection(`users`).insertOne({
       email,
       name: "any_name",
       age: 50,
@@ -35,7 +34,7 @@ describe("Update User Token Repository", () => {
       password: hashedPassword,
     });
     await sut.update(createdUser.insertedId, "valid_token");
-    const updatedUser = await userModel.findOne({
+    const updatedUser = await db.collection('users').findOne({
       _id: createdUser.insertedId,
     });
     expect(updatedUser.accessToken).toBe("valid_token");
@@ -54,11 +53,10 @@ describe("Update User Token Repository", () => {
   });
 
   it(`should throw if no userModel is provided`, async () => {
-    const userModel = db.collection("users");
     const sut = new UpdateUserTokenRepository();
     const hashedPassword = "hashed_password";
     const email = "valid_mail@mail.com";
-    const createdUser = await userModel.insertOne({
+    const createdUser = await db.collection(`users`).insertOne({
       email,
       name: "any_name",
       age: 50,

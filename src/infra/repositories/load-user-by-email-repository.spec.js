@@ -5,9 +5,8 @@ const LoadUserByEmailRepository = require("./load-user-by-email-repository");
 let db;
 
 const makeSut = () => {
-  const userModel = db.collection("users");
-  const sut = new LoadUserByEmailRepository(userModel);
-  return { sut, userModel };
+  const sut = new LoadUserByEmailRepository();
+  return { sut };
 };
 
 describe(`LoadUserByEmailRepository`, () => {
@@ -31,10 +30,10 @@ describe(`LoadUserByEmailRepository`, () => {
   });
 
   test(`should return an user if user exists`, async () => {
-    const { sut, userModel } = makeSut();
+    const { sut } = makeSut();
     const hashedPassword = "hashed_password";
     const email = "valid_mail@mail.com";
-    const fakeUser = await userModel.insertOne({
+    const fakeUser = await db.collection(`users`).insertOne({
       email,
       name: "any_name",
       age: 50,
