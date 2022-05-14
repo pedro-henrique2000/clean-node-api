@@ -28,6 +28,8 @@ describe("Login Routes", () => {
       password: bcrypt.hashSync("hashedPassword", 10),
     });
 
+    console.log(bcrypt.hashSync("hashedPassword", 10))
+
     await request(app)
       .post(`/api/login`)
       .send({
