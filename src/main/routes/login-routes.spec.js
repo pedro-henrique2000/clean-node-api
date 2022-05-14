@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require(`../config/app`);
+const bcrypt = require('bcrypt')
 const MongoHelper = require("../../infra/helpers/mongo-helper");
 
 let userModel;
@@ -24,7 +25,7 @@ describe("Login Routes", () => {
       name: "any_name",
       age: 50,
       state: "any",
-      password: "hashedPassword",
+      password: bcrypt.hashSync("hashedPassword", 10),
     });
 
     await request(app)
