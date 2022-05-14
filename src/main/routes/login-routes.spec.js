@@ -20,7 +20,7 @@ describe("Login Routes", () => {
   });
 
   it("should return 200 when valid credentials are provided", async () => {
-    const user = await userModel.insertOne({
+    await userModel.insertOne({
       email: "email@mail.com",
       name: "any_name",
       age: 50,
@@ -35,5 +35,23 @@ describe("Login Routes", () => {
         password: "hashedPassword",
       })
       .expect(200);
+  });
+
+  it("should return 401 when invalid credentials are provided", async () => {
+    await userModel.insertOne({
+      email: "email@mail.com",
+      name: "any_name",
+      age: 50,
+      state: "any",
+      password: bcrypt.hashSync("hashedPassword", 10),
+    });
+
+    await request(app)
+      .post(`/api/login`)
+      .send({
+        email: "email@mail.com",
+        password: "invalid_password",
+      })
+      .expect(401);
   });
 });
